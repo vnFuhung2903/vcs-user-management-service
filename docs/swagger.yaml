@@ -1,0 +1,160 @@
+basePath: /
+definitions:
+  dto.APIResponse:
+    properties:
+      code:
+        type: string
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  dto.DeleteRequest:
+    properties:
+      user_id:
+        type: string
+    required:
+    - user_id
+    type: object
+  dto.UpdateRoleRequest:
+    properties:
+      role:
+        $ref: '#/definitions/entities.UserRole'
+      user_id:
+        type: string
+    required:
+    - role
+    - user_id
+    type: object
+  dto.UpdateScopeRequest:
+    properties:
+      is_added:
+        type: boolean
+      scopes:
+        type: string
+      user_id:
+        type: string
+    required:
+    - scopes
+    - user_id
+    type: object
+  entities.UserRole:
+    enum:
+    - manager
+    - developer
+    type: string
+    x-enum-varnames:
+    - Manager
+    - Developer
+host: localhost:8085
+info:
+  contact: {}
+  description: Container Management System API
+  title: VCS SMS API
+  version: "1.0"
+paths:
+  /users/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a user from the system (admin only)
+      parameters:
+      - description: User ID to delete
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DeleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User deleted successfully
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a user
+      tags:
+      - users
+  /users/update/role:
+    put:
+      consumes:
+      - application/json
+      description: Update role of a user (admin only)
+      parameters:
+      - description: User ID and new role
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role updated successfully
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a user's role
+      tags:
+      - users
+  /users/update/scope:
+    put:
+      consumes:
+      - application/json
+      description: Update permission scope of a user (admin only)
+      parameters:
+      - description: User ID, scopes, and whether to add or remove
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateScopeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Scope updated successfully
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a user's scope
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
