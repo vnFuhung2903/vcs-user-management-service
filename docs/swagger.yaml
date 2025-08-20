@@ -12,21 +12,36 @@ definitions:
       success:
         type: boolean
     type: object
+  dto.CreateScopeRequest:
+    properties:
+      scope_name:
+        type: string
+    required:
+    - scope_name
+    type: object
+  dto.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      scopes:
+        items:
+          type: string
+        type: array
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - scopes
+    - username
+    type: object
   dto.DeleteRequest:
     properties:
       user_id:
         type: string
     required:
-    - user_id
-    type: object
-  dto.UpdateRoleRequest:
-    properties:
-      role:
-        $ref: '#/definitions/entities.UserRole'
-      user_id:
-        type: string
-    required:
-    - role
     - user_id
     type: object
   dto.UpdateScopeRequest:
@@ -41,14 +56,6 @@ definitions:
     - scopes
     - user_id
     type: object
-  entities.UserRole:
-    enum:
-    - manager
-    - developer
-    type: string
-    x-enum-varnames:
-    - Manager
-    - Developer
 host: localhost:8085
 info:
   contact: {}
@@ -56,6 +63,66 @@ info:
   title: VCS SMS API
   version: "1.0"
 paths:
+  /scopes/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a scope
+      parameters:
+      - description: Scope creation request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateScopeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: New scope created successfully
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+      summary: Create a new scope
+      tags:
+      - auth
+  /users/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a user
+      parameters:
+      - description: User creation request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: New user created successfully
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+      summary: Create a new user
+      tags:
+      - auth
   /users/delete:
     delete:
       consumes:
@@ -86,38 +153,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Delete a user
-      tags:
-      - users
-  /users/update/role:
-    put:
-      consumes:
-      - application/json
-      description: Update role of a user (admin only)
-      parameters:
-      - description: User ID and new role
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UpdateRoleRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Role updated successfully
-          schema:
-            $ref: '#/definitions/dto.APIResponse'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/dto.APIResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/dto.APIResponse'
-      security:
-      - BearerAuth: []
-      summary: Update a user's role
       tags:
       - users
   /users/update/scope:

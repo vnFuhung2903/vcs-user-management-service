@@ -1,10 +1,10 @@
 package dto
 
-import "github.com/vnFuhung2903/vcs-user-management-service/entities"
-
-type UpdateRoleRequest struct {
-	UserId string            `json:"user_id" binding:"required"`
-	Role   entities.UserRole `json:"role" binding:"required"`
+type CreateUserRequest struct {
+	Username string   `json:"username" binding:"required"`
+	Password string   `json:"password" binding:"required"`
+	Email    string   `json:"email" binding:"required,email"`
+	Scopes   []string `json:"scopes" binding:"required"`
 }
 
 type UpdateScopeRequest struct {

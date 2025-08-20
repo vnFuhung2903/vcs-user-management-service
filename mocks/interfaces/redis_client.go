@@ -7,7 +7,6 @@ package interfaces
 import (
 	context "context"
 	reflect "reflect"
-	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -47,33 +46,4 @@ func (m *MockIRedisClient) Del(ctx context.Context, key string) error {
 func (mr *MockIRedisClientMockRecorder) Del(ctx, key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Del", reflect.TypeOf((*MockIRedisClient)(nil).Del), ctx, key)
-}
-
-// Get mocks base method.
-func (m *MockIRedisClient) Get(ctx context.Context, key string) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", ctx, key)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Get indicates an expected call of Get.
-func (mr *MockIRedisClientMockRecorder) Get(ctx, key interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockIRedisClient)(nil).Get), ctx, key)
-}
-
-// Set mocks base method.
-func (m *MockIRedisClient) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Set", ctx, key, value, expiration)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Set indicates an expected call of Set.
-func (mr *MockIRedisClientMockRecorder) Set(ctx, key, value, expiration interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockIRedisClient)(nil).Set), ctx, key, value, expiration)
 }

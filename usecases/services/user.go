@@ -2,72 +2,75 @@ package services
 
 import (
 	"context"
+	"net/mail"
 
 	"github.com/vnFuhung2903/vcs-user-management-service/entities"
 	"github.com/vnFuhung2903/vcs-user-management-service/interfaces"
 	"github.com/vnFuhung2903/vcs-user-management-service/pkg/logger"
 	"github.com/vnFuhung2903/vcs-user-management-service/usecases/repositories"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type IUserService interface {
-	UpdateRole(ctx context.Context, userId string, role entities.UserRole) error
-	UpdateScope(ctx context.Context, userId string, scope string, isAdded bool) error
+	Create(username, password, email string, scopes []*entities.UserScope) (*entities.User, error)
+	UpdateScope(ctx context.Context, userId string, scope *entities.UserScope, isAdded bool) error
 	Delete(ctx context.Context, userId string) error
 }
 
 type userService struct {
-	scopeRepo   repositories.IScopeRepository
 	userRepo    repositories.IUserRepository
 	redisClient interfaces.IRedisClient
 	logger      logger.ILogger
 }
 
-func NewUserService(scopeRepo repositories.IScopeRepository, userRepo repositories.IUserRepository, redisClient interfaces.IRedisClient, logger logger.ILogger) IUserService {
+func NewUserService(userRepo repositories.IUserRepository, redisClient interfaces.IRedisClient, logger logger.ILogger) IUserService {
 	return &userService{
-		scopeRepo:   scopeRepo,
 		userRepo:    userRepo,
 		redisClient: redisClient,
 		logger:      logger,
 	}
 }
 
-func (s *userService) UpdateRole(ctx context.Context, userId string, role entities.UserRole) error {
-	user, err := s.userRepo.FindById(userId)
+func (s *userService) Create(username, password, email string, scopes []*entities.UserScope) (*entities.User, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		s.logger.Error("failed to find user by id", zap.Error(err))
-		return err
-	}
-	if err := s.userRepo.UpdateRole(user, role); err != nil {
-		s.logger.Error("failed to update user's role", zap.Error(err))
-		return err
+		s.logger.Error("failed to hash password", zap.Error(err))
+		return nil, err
 	}
 
-	s.logger.Info("user's role updated successfully")
-	return nil
+	mail, err := mail.ParseAddress(email)
+	if err != nil {
+		s.logger.Error("failed to parse email", zap.Error(err))
+		return nil, err
+	}
+
+	user, err := s.userRepo.Create(username, string(hash), mail.Address, scopes)
+	if err != nil {
+		s.logger.Error("failed to create user", zap.Error(err))
+		return nil, err
+	}
+
+	s.logger.Info("new user registered successfully")
+	return user, nil
 }
 
-func (s *userService) UpdateScope(ctx context.Context, userId string, scope string, isAdded bool) error {
+func (s *userService) UpdateScope(ctx context.Context, userId string, scope *entities.UserScope, isAdded bool) error {
 	user, err := s.userRepo.FindById(userId)
 	if err != nil {
 		s.logger.Error("failed to find user by id", zap.Error(err))
 		return err
 	}
 
-	scopeFound, err := s.scopeRepo.FindByName(scope)
-	if err != nil {
-		s.logger.Error("failed to find scope by name", zap.Error(err))
-	}
-
-	scopeList := make([]entities.UserScope, len(user.Scopes))
+	scopeList := make([]*entities.UserScope, len(user.Scopes))
 	for _, s := range user.Scopes {
-		if s.ID == scopeFound.ID {
+		if s.ID == scope.ID {
 			continue
 		}
 		scopeList = append(scopeList, s)
 	}
 	if isAdded {
-		scopeList = append(scopeList, *scopeFound)
+		scopeList = append(scopeList, scope)
 	}
 
 	if err := s.userRepo.UpdateScope(user, scopeList); err != nil {

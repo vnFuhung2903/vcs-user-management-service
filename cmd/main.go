@@ -50,11 +50,14 @@ func main() {
 	scopeRepository := repositories.NewScopeRepository(postgresDb)
 	userRepository := repositories.NewUserRepository(postgresDb)
 
-	userService := services.NewUserService(scopeRepository, userRepository, redisClient, logger)
-	authHandler := api.NewUserHandler(userService, jwtMiddleware)
+	scopeService := services.NewScopeService(scopeRepository, logger)
+	userService := services.NewUserService(userRepository, redisClient, logger)
+	scopeHandler := api.NewScopeHandler(scopeService, jwtMiddleware)
+	userHandler := api.NewUserHandler(scopeService, userService, jwtMiddleware)
 
 	r := gin.Default()
-	authHandler.SetupRoutes(r)
+	scopeHandler.SetupRoutes(r)
+	userHandler.SetupRoutes(r)
 	r.GET("/swagger/*any", swagger.WrapHandler(swaggerFiles.Handler))
 
 	if err := r.Run(":8085"); err != nil {

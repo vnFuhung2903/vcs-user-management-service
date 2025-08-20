@@ -15,6 +15,98 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/scopes/create": {
+            "post": {
+                "description": "Create a scope",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Create a new scope",
+                "parameters": [
+                    {
+                        "description": "Scope creation request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateScopeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "New scope created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/create": {
+            "post": {
+                "description": "Create a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Create a new user",
+                "parameters": [
+                    {
+                        "description": "User creation request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "New user created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/delete": {
             "delete": {
                 "security": [
@@ -47,57 +139,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "User deleted successfully",
-                        "schema": {
-                            "$ref": "#/definitions/dto.APIResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/dto.APIResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.APIResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/update/role": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Update role of a user (admin only)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Update a user's role",
-                "parameters": [
-                    {
-                        "description": "User ID and new role",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateRoleRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Role updated successfully",
                         "schema": {
                             "$ref": "#/definitions/dto.APIResponse"
                         }
@@ -188,27 +229,49 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateScopeRequest": {
+            "type": "object",
+            "required": [
+                "scope_name"
+            ],
+            "properties": {
+                "scope_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateUserRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "scopes",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "scopes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.DeleteRequest": {
             "type": "object",
             "required": [
                 "user_id"
             ],
             "properties": {
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UpdateRoleRequest": {
-            "type": "object",
-            "required": [
-                "role",
-                "user_id"
-            ],
-            "properties": {
-                "role": {
-                    "$ref": "#/definitions/entities.UserRole"
-                },
                 "user_id": {
                     "type": "string"
                 }
@@ -231,17 +294,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "entities.UserRole": {
-            "type": "string",
-            "enum": [
-                "manager",
-                "developer"
-            ],
-            "x-enum-varnames": [
-                "Manager",
-                "Developer"
-            ]
         }
     },
     "securityDefinitions": {
