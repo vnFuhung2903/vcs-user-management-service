@@ -92,7 +92,7 @@ paths:
             $ref: '#/definitions/dto.APIResponse'
       summary: Create a new scope
       tags:
-      - auth
+      - scopes
   /users/create:
     post:
       consumes:
@@ -122,7 +122,7 @@ paths:
             $ref: '#/definitions/dto.APIResponse'
       summary: Create a new user
       tags:
-      - auth
+      - users
   /users/delete:
     delete:
       consumes:

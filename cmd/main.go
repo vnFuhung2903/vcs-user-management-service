@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -42,6 +43,15 @@ func main() {
 		log.Fatalf("Failed to create docker client: %v", err)
 	}
 	postgresDb.AutoMigrate(&entities.User{}, &entities.UserScope{})
+
+	sqlBytes, err := os.ReadFile("migration/init.sql")
+	if err != nil {
+		log.Fatalf("Error reading SQL file: %v", err)
+	}
+	execTrigger := postgresDb.Exec(string(sqlBytes))
+	if execTrigger.Error != nil {
+		log.Fatalf("Failed to execute trigger SQL: %v", execTrigger.Error)
+	}
 
 	redisRawClient := databases.NewRedisFactory(env.RedisEnv).ConnectRedis()
 	redisClient := interfaces.NewRedisClient(redisRawClient)

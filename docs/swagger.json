@@ -19,7 +19,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "scopes"
                 ],
                 "summary": "Create a new scope",
                 "parameters": [
@@ -65,7 +65,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "users"
                 ],
                 "summary": "Create a new user",
                 "parameters": [
