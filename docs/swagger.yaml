@@ -67,7 +67,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a scope
+      description: Create a scope (admin only)
       parameters:
       - description: Scope creation request
         in: body
@@ -90,6 +90,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/dto.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Create a new scope
       tags:
       - scopes
@@ -97,7 +99,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a user
+      description: Create a user (admin only)
       parameters:
       - description: User creation request
         in: body
@@ -120,6 +122,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/dto.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Create a new user
       tags:
       - users

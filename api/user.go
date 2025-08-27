@@ -9,17 +9,17 @@ import (
 	"github.com/vnFuhung2903/vcs-user-management-service/usecases/services"
 )
 
-type UserHandler struct {
+type userHandler struct {
 	scopeService  services.IScopeService
 	userService   services.IUserService
 	jwtMiddleware middlewares.IJWTMiddleware
 }
 
-func NewUserHandler(scopeService services.IScopeService, userService services.IUserService, jwtMiddleware middlewares.IJWTMiddleware) *UserHandler {
-	return &UserHandler{scopeService, userService, jwtMiddleware}
+func NewUserHandler(scopeService services.IScopeService, userService services.IUserService, jwtMiddleware middlewares.IJWTMiddleware) *userHandler {
+	return &userHandler{scopeService, userService, jwtMiddleware}
 }
 
-func (h *UserHandler) SetupRoutes(r *gin.Engine) {
+func (h *userHandler) SetupRoutes(r *gin.Engine) {
 	userRoutes := r.Group("/users", h.jwtMiddleware.RequireScope("user:manage"))
 	{
 		userRoutes.POST("/create", h.Create)
@@ -30,7 +30,7 @@ func (h *UserHandler) SetupRoutes(r *gin.Engine) {
 
 // CreateUser godoc
 // @Summary Create a new user
-// @Description Create a user
+// @Description Create a user (admin only)
 // @Tags users
 // @Accept json
 // @Produce json
@@ -38,8 +38,9 @@ func (h *UserHandler) SetupRoutes(r *gin.Engine) {
 // @Success 201 {object} dto.APIResponse "New user created successfully"
 // @Failure 400 {object} dto.APIResponse "Bad request"
 // @Failure 500 {object} dto.APIResponse "Internal server error"
+// @Security BearerAuth
 // @Router /users/create [post]
-func (h *UserHandler) Create(c *gin.Context) {
+func (h *userHandler) Create(c *gin.Context) {
 	var req dto.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, dto.APIResponse{
@@ -91,7 +92,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 // @Failure 500 {object} dto.APIResponse "Internal server error"
 // @Security BearerAuth
 // @Router /users/update/scope [put]
-func (h *UserHandler) UpdateScope(c *gin.Context) {
+func (h *userHandler) UpdateScope(c *gin.Context) {
 	var req dto.UpdateScopeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, dto.APIResponse{
@@ -143,7 +144,7 @@ func (h *UserHandler) UpdateScope(c *gin.Context) {
 // @Failure 500 {object} dto.APIResponse "Internal server error"
 // @Security BearerAuth
 // @Router /users/delete [delete]
-func (h *UserHandler) Delete(c *gin.Context) {
+func (h *userHandler) Delete(c *gin.Context) {
 	var req dto.DeleteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, dto.APIResponse{

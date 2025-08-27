@@ -17,7 +17,12 @@ const docTemplate = `{
     "paths": {
         "/scopes/create": {
             "post": {
-                "description": "Create a scope",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a scope (admin only)",
                 "consumes": [
                     "application/json"
                 ],
@@ -63,7 +68,12 @@ const docTemplate = `{
         },
         "/users/create": {
             "post": {
-                "description": "Create a user",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a user (admin only)",
                 "consumes": [
                     "application/json"
                 ],

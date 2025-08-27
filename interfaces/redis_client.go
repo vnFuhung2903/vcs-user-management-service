@@ -10,14 +10,14 @@ type IRedisClient interface {
 	Del(ctx context.Context, key string) error
 }
 
-type RedisClient struct {
+type redisClient struct {
 	client *redis.Client
 }
 
 func NewRedisClient(client *redis.Client) IRedisClient {
-	return &RedisClient{client: client}
+	return &redisClient{client: client}
 }
 
-func (c *RedisClient) Del(ctx context.Context, key string) error {
+func (c *redisClient) Del(ctx context.Context, key string) error {
 	return c.client.Del(ctx, key).Err()
 }

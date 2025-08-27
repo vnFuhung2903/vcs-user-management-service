@@ -9,16 +9,16 @@ import (
 	"github.com/vnFuhung2903/vcs-user-management-service/usecases/services"
 )
 
-type ScopeHandler struct {
+type scopeHandler struct {
 	scopeService  services.IScopeService
 	jwtMiddleware middlewares.IJWTMiddleware
 }
 
-func NewScopeHandler(scopeService services.IScopeService, jwtMiddleware middlewares.IJWTMiddleware) *ScopeHandler {
-	return &ScopeHandler{scopeService, jwtMiddleware}
+func NewScopeHandler(scopeService services.IScopeService, jwtMiddleware middlewares.IJWTMiddleware) *scopeHandler {
+	return &scopeHandler{scopeService, jwtMiddleware}
 }
 
-func (h *ScopeHandler) SetupRoutes(r *gin.Engine) {
+func (h *scopeHandler) SetupRoutes(r *gin.Engine) {
 	userRoutes := r.Group("/scopes", h.jwtMiddleware.RequireScope("scope:manage"))
 	{
 		userRoutes.POST("/create/:scope", h.Create)
@@ -27,7 +27,7 @@ func (h *ScopeHandler) SetupRoutes(r *gin.Engine) {
 
 // CreateScope godoc
 // @Summary Create a new scope
-// @Description Create a scope
+// @Description Create a scope (admin only)
 // @Tags scopes
 // @Accept json
 // @Produce json
@@ -35,8 +35,9 @@ func (h *ScopeHandler) SetupRoutes(r *gin.Engine) {
 // @Success 201 {object} dto.APIResponse "New scope created successfully"
 // @Failure 400 {object} dto.APIResponse "Bad request"
 // @Failure 500 {object} dto.APIResponse "Internal server error"
+// @Security BearerAuth
 // @Router /scopes/create [post]
-func (h *ScopeHandler) Create(c *gin.Context) {
+func (h *scopeHandler) Create(c *gin.Context) {
 	var req dto.CreateScopeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, dto.APIResponse{

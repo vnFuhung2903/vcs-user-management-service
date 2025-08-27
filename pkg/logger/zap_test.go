@@ -10,14 +10,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"github.com/vnFuhung2903/vcs-user-management-service/pkg/env"
+	"github.com/vnFuhung2903/vcs-healthcheck-service/pkg/env"
 	"go.uber.org/zap"
 )
 
 type LoggerSuite struct {
 	suite.Suite
 	tempDir    string
-	testLogger *Logger
+	testLogger ILogger
 	logBuffer  *bytes.Buffer
 }
 
@@ -60,7 +60,6 @@ func (suite *LoggerSuite) TestLoadLogger() {
 
 	suite.NoError(err)
 	suite.NotNil(logger)
-	suite.IsType(&Logger{}, logger)
 	suite.NotNil(logger.logger)
 }
 
@@ -93,7 +92,6 @@ func (suite *LoggerSuite) TestInitLogger() {
 
 	suite.NoError(err)
 	suite.NotNil(logger)
-	suite.IsType(&Logger{}, logger)
 }
 
 func (suite *LoggerSuite) TestInitLoggerInvalidLogPath() {
