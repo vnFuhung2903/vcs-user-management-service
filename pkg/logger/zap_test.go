@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"github.com/vnFuhung2903/vcs-healthcheck-service/pkg/env"
+	"github.com/vnFuhung2903/vcs-user-management-service/pkg/env"
 	"go.uber.org/zap"
 )
 

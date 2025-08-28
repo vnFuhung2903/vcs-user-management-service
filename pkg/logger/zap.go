@@ -4,7 +4,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/vnFuhung2903/vcs-healthcheck-service/pkg/env"
+	"github.com/vnFuhung2903/vcs-user-management-service/pkg/env"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"

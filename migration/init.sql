@@ -2,14 +2,14 @@ TRUNCATE TABLE user_scope_mapping RESTART IDENTITY CASCADE;
 TRUNCATE TABLE user_scopes RESTART IDENTITY CASCADE;
 TRUNCATE TABLE users RESTART IDENTITY CASCADE;
 
-INSERT INTO user_scopes (id, name)
+INSERT INTO user_scopes (name)
 VALUES
-(1, 'container:create'),
-(2, 'container:view'),
-(3, 'container:update'),
-(4, 'container:delete'),
-(5, 'scope:manage'),
-(6, 'user:manage');
+('container:create'),
+('container:view'),
+('container:update'),
+('container:delete'),
+('scope:manage'),
+('user:manage');
 
 INSERT INTO users (id, username, hash, email)
 VALUES
