@@ -9,7 +9,8 @@ VALUES
 ('container:update'),
 ('container:delete'),
 ('scope:manage'),
-('user:manage');
+('user:manage'),
+('report:mail');
 
 INSERT INTO users (id, username, hash, email)
 VALUES

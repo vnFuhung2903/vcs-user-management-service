@@ -1,8 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -17,6 +22,7 @@ import (
 	"github.com/vnFuhung2903/vcs-user-management-service/pkg/middlewares"
 	"github.com/vnFuhung2903/vcs-user-management-service/usecases/repositories"
 	"github.com/vnFuhung2903/vcs-user-management-service/usecases/services"
+	"go.uber.org/zap"
 )
 
 // @title VCS SMS API
@@ -54,6 +60,7 @@ func main() {
 	}
 
 	redisRawClient := databases.NewRedisFactory(env.RedisEnv).ConnectRedis()
+	defer redisRawClient.Close()
 	redisClient := interfaces.NewRedisClient(redisRawClient)
 
 	jwtMiddleware := middlewares.NewJWTMiddleware(env.AuthEnv)
@@ -70,9 +77,25 @@ func main() {
 	userHandler.SetupRoutes(r)
 	r.GET("/swagger/*any", swagger.WrapHandler(swaggerFiles.Handler))
 
-	if err := r.Run(":8085"); err != nil {
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	server := &http.Server{
+		Addr:    ":8085",
+		Handler: r,
+	}
+
+	go func() {
+		<-quit
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
+			logger.Error("HTTP server shutdown failed", zap.Error(err))
+		}
+		logger.Info("User management service stopped gracefully")
+	}()
+
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Failed to run service: %v", err)
-	} else {
-		logger.Info("User management service is running on port 8085")
 	}
 }
