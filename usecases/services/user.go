@@ -62,7 +62,7 @@ func (s *userService) UpdateScope(ctx context.Context, userId string, scope *ent
 		return err
 	}
 
-	scopeList := make([]*entities.UserScope, len(user.Scopes))
+	scopeList := make([]*entities.UserScope, 0, len(user.Scopes))
 	for _, s := range user.Scopes {
 		if s.ID == scope.ID {
 			continue
