@@ -11,8 +11,6 @@ import (
 
 type IUserRepository interface {
 	FindById(userId string) (*entities.User, error)
-	FindByName(username string) (*entities.User, error)
-	FindByEmail(email string) (*entities.User, error)
 	Create(username, hash, email string, scopes []*entities.UserScope) (*entities.User, error)
 	UpdateScope(user *entities.User, scopes []*entities.UserScope) error
 	Delete(userId string) error
@@ -37,24 +35,6 @@ func (r *userRepository) FindById(userId string) (*entities.User, error) {
 	return &user, nil
 }
 
-func (r *userRepository) FindByName(username string) (*entities.User, error) {
-	var user entities.User
-	res := r.db.Preload("Scopes").First(&user, entities.User{Username: username})
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	return &user, nil
-}
-
-func (r *userRepository) FindByEmail(email string) (*entities.User, error) {
-	var user entities.User
-	res := r.db.Preload("Scopes").First(&user, entities.User{Email: email})
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	return &user, nil
-}
-
 func (r *userRepository) Create(username, hash, email string, scopes []*entities.UserScope) (*entities.User, error) {
 	newUser := &entities.User{
 		ID:       uuid.New().String(),
@@ -71,8 +51,8 @@ func (r *userRepository) Create(username, hash, email string, scopes []*entities
 }
 
 func (r *userRepository) UpdateScope(user *entities.User, scopes []*entities.UserScope) error {
-	res := r.db.Model(user).Update("scopes", scopes)
-	return res.Error
+	err := r.db.Model(user).Association("Scopes").Replace(scopes)
+	return err
 }
 
 func (r *userRepository) Delete(userId string) error {
