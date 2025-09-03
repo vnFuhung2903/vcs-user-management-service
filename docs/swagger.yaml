@@ -56,7 +56,7 @@ definitions:
     - scopes
     - user_id
     type: object
-host: localhost:8085
+host: localhost:8083
 info:
   contact: {}
   description: Container Management System API

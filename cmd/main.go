@@ -29,7 +29,7 @@ import (
 // @title VCS SMS API
 // @version 1.0
 // @description Container Management System API
-// @host localhost:8085
+// @host localhost:8083
 // @BasePath /
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -91,7 +91,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	server := &http.Server{
-		Addr:    ":8085",
+		Addr:    ":8083",
 		Handler: r,
 	}
 
