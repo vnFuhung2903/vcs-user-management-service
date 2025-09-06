@@ -50,6 +50,35 @@ func (mr *MockIScopeServiceMockRecorder) Create(ctx, scopeName interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIScopeService)(nil).Create), ctx, scopeName)
 }
 
+// Delete mocks base method.
+func (m *MockIScopeService) Delete(ctx context.Context, scopeName string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", ctx, scopeName)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockIScopeServiceMockRecorder) Delete(ctx, scopeName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIScopeService)(nil).Delete), ctx, scopeName)
+}
+
+// FindAll mocks base method.
+func (m *MockIScopeService) FindAll(ctx context.Context) ([]*entities.UserScope, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindAll", ctx)
+	ret0, _ := ret[0].([]*entities.UserScope)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindAll indicates an expected call of FindAll.
+func (mr *MockIScopeServiceMockRecorder) FindAll(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockIScopeService)(nil).FindAll), ctx)
+}
+
 // FindMany mocks base method.
 func (m *MockIScopeService) FindMany(ctx context.Context, scopeNames []string) ([]*entities.UserScope, error) {
 	m.ctrl.T.Helper()

@@ -285,7 +285,7 @@ func (s *UserHandlerSuite) TestUpdateScopeUserServiceError() {
 }
 
 func (s *UserHandlerSuite) TestDelete() {
-	req := dto.DeleteRequest{
+	req := dto.DeleteUserRequest{
 		UserId: "user-123",
 	}
 
@@ -309,7 +309,7 @@ func (s *UserHandlerSuite) TestDelete() {
 }
 
 func (s *UserHandlerSuite) TestDeleteInvalidInput() {
-	req := dto.DeleteRequest{
+	req := dto.DeleteUserRequest{
 		UserId: "",
 	}
 
@@ -330,7 +330,7 @@ func (s *UserHandlerSuite) TestDeleteInvalidInput() {
 }
 
 func (s *UserHandlerSuite) TestDeleteUserServiceError() {
-	req := dto.DeleteRequest{
+	req := dto.DeleteUserRequest{
 		UserId: "user-123",
 	}
 
@@ -351,4 +351,56 @@ func (s *UserHandlerSuite) TestDeleteUserServiceError() {
 	assert.False(s.T(), response.Success)
 	assert.Equal(s.T(), "INTERNAL_SERVER_ERROR", response.Code)
 	assert.Equal(s.T(), "Failed to delete user", response.Message)
+}
+
+func (s *UserHandlerSuite) TestListAll() {
+	expectedUsers := []*entities.User{
+		{
+			ID:       "user-1",
+			Username: "user1",
+			Email:    "user1@example.com",
+			Scopes:   []*entities.UserScope{{ID: 1, Name: "read"}},
+		},
+		{
+			ID:       "user-2",
+			Username: "user2",
+			Email:    "user2@example.com",
+			Scopes:   []*entities.UserScope{{ID: 2, Name: "write"}},
+		},
+	}
+
+	s.mockUserSvc.EXPECT().FindAll(gomock.Any()).Return(expectedUsers, nil)
+
+	w := httptest.NewRecorder()
+	httpReq, _ := http.NewRequest("GET", "/users/list", nil)
+
+	s.router.ServeHTTP(w, httpReq)
+
+	assert.Equal(s.T(), http.StatusOK, w.Code)
+
+	var response dto.APIResponse
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(s.T(), err)
+	assert.True(s.T(), response.Success)
+	assert.Equal(s.T(), "USERS_RETRIEVED", response.Code)
+	assert.Equal(s.T(), "All users retrieved successfully", response.Message)
+	assert.NotNil(s.T(), response.Data)
+}
+
+func (s *UserHandlerSuite) TestListAllServiceError() {
+	s.mockUserSvc.EXPECT().FindAll(gomock.Any()).Return(nil, errors.New("database error"))
+
+	w := httptest.NewRecorder()
+	httpReq, _ := http.NewRequest("GET", "/users/list", nil)
+
+	s.router.ServeHTTP(w, httpReq)
+
+	assert.Equal(s.T(), http.StatusInternalServerError, w.Code)
+
+	var response dto.APIResponse
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(s.T(), err)
+	assert.False(s.T(), response.Success)
+	assert.Equal(s.T(), "INTERNAL_SERVER_ERROR", response.Code)
+	assert.Equal(s.T(), "Failed to retrieve users", response.Message)
 }

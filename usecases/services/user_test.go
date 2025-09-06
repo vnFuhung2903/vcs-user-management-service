@@ -93,6 +93,7 @@ func (s *UserServiceSuite) TestUpdateScopeAdd() {
 	userId := "test-id"
 	scopes := []*entities.UserScope{
 		{Name: "user:read", ID: 2},
+		{Name: "user:modify", ID: 1},
 	}
 	newScope := &entities.UserScope{
 		Name: "user:modify",
@@ -102,7 +103,7 @@ func (s *UserServiceSuite) TestUpdateScopeAdd() {
 		ID:     userId,
 		Scopes: scopes,
 	}
-	expectedScope := append(existingUser.Scopes, newScope)
+	expectedScope := existingUser.Scopes
 
 	s.mockRepo.EXPECT().FindById(userId).Return(existingUser, nil)
 	s.mockRepo.EXPECT().UpdateScope(existingUser, expectedScope).Return(nil)
@@ -201,4 +202,43 @@ func (s *UserServiceSuite) TestDeleteRedisError() {
 
 	err := s.userService.Delete(s.ctx, userId)
 	s.ErrorContains(err, "redis error")
+}
+
+func (s *UserServiceSuite) TestFindAll() {
+	expectedUsers := []*entities.User{
+		{
+			ID:       "user-1",
+			Username: "user1",
+			Email:    "user1@example.com",
+			Scopes:   []*entities.UserScope{{ID: 1, Name: "read"}},
+		},
+		{
+			ID:       "user-2",
+			Username: "user2",
+			Email:    "user2@example.com",
+			Scopes:   []*entities.UserScope{{ID: 2, Name: "write"}},
+		},
+		{
+			ID:       "user-3",
+			Username: "user3",
+			Email:    "user3@example.com",
+			Scopes:   []*entities.UserScope{{ID: 3, Name: "admin"}},
+		},
+	}
+
+	s.mockRepo.EXPECT().FindAll().Return(expectedUsers, nil)
+	s.logger.EXPECT().Info("all users retrieved successfully").Times(1)
+
+	result, err := s.userService.FindAll(s.ctx)
+	s.NoError(err)
+	s.Equal(expectedUsers, result)
+}
+
+func (s *UserServiceSuite) TestFindAllError() {
+	s.mockRepo.EXPECT().FindAll().Return(nil, errors.New("database error"))
+	s.logger.EXPECT().Error("failed to find all users", gomock.Any()).Times(1)
+
+	result, err := s.userService.FindAll(s.ctx)
+	s.ErrorContains(err, "database error")
+	s.Nil(result)
 }

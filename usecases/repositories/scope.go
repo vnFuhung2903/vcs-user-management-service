@@ -11,6 +11,7 @@ import (
 type IScopeRepository interface {
 	FindById(scopeId uint) (*entities.UserScope, error)
 	FindByName(name string) (*entities.UserScope, error)
+	FindAll() ([]*entities.UserScope, error)
 	Create(name string) (*entities.UserScope, error)
 	Delete(name string) error
 	BeginTransaction(ctx context.Context) (*gorm.DB, error)
@@ -41,6 +42,15 @@ func (r *scopeRepository) FindByName(name string) (*entities.UserScope, error) {
 		return nil, res.Error
 	}
 	return &scope, nil
+}
+
+func (r *scopeRepository) FindAll() ([]*entities.UserScope, error) {
+	var scopes []*entities.UserScope
+	res := r.db.Find(&scopes)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return scopes, nil
 }
 
 func (r *scopeRepository) Create(name string) (*entities.UserScope, error) {

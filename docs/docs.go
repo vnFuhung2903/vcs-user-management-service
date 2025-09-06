@@ -15,6 +15,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/scopes/": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all scopes (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "scopes"
+                ],
+                "summary": "List all scopes",
+                "responses": {
+                    "200": {
+                        "description": "Scopes retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/scopes/create": {
             "post": {
                 "security": [
@@ -47,6 +81,57 @@ const docTemplate = `{
                 "responses": {
                     "201": {
                         "description": "New scope created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/scopes/delete": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a scope by name (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "scopes"
+                ],
+                "summary": "Delete a scope",
+                "parameters": [
+                    {
+                        "description": "Scope deletion request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.DeleteScopeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Scope deleted successfully",
                         "schema": {
                             "$ref": "#/definitions/dto.APIResponse"
                         }
@@ -142,7 +227,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.DeleteRequest"
+                            "$ref": "#/definitions/dto.DeleteUserRequest"
                         }
                     }
                 ],
@@ -155,6 +240,40 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/list": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all users (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "List all users",
+                "responses": {
+                    "200": {
+                        "description": "Users retrieved successfully",
                         "schema": {
                             "$ref": "#/definitions/dto.APIResponse"
                         }
@@ -276,7 +395,18 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.DeleteRequest": {
+        "dto.DeleteScopeRequest": {
+            "type": "object",
+            "required": [
+                "scope_name"
+            ],
+            "properties": {
+                "scope_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.DeleteUserRequest": {
             "type": "object",
             "required": [
                 "user_id"

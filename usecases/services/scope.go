@@ -13,6 +13,8 @@ type IScopeService interface {
 	Create(ctx context.Context, scopeName string) (*entities.UserScope, error)
 	FindOne(ctx context.Context, scopeName string) (*entities.UserScope, error)
 	FindMany(ctx context.Context, scopeNames []string) ([]*entities.UserScope, error)
+	FindAll(ctx context.Context) ([]*entities.UserScope, error)
+	Delete(ctx context.Context, scopeName string) error
 }
 
 type scopeService struct {
@@ -74,4 +76,26 @@ func (s *scopeService) FindMany(ctx context.Context, scopeNames []string) ([]*en
 
 	s.logger.Info("all scopes found successfully")
 	return scopes, nil
+}
+
+func (s *scopeService) FindAll(ctx context.Context) ([]*entities.UserScope, error) {
+	scopes, err := s.scopeRepo.FindAll()
+	if err != nil {
+		s.logger.Error("failed to find all scopes", zap.Error(err))
+		return nil, err
+	}
+
+	s.logger.Info("all scopes retrieved successfully")
+	return scopes, nil
+}
+
+func (s *scopeService) Delete(ctx context.Context, scopeName string) error {
+	err := s.scopeRepo.Delete(scopeName)
+	if err != nil {
+		s.logger.Error("failed to delete scope", zap.Error(err))
+		return err
+	}
+
+	s.logger.Info("scope deleted successfully", zap.String("name", scopeName))
+	return nil
 }

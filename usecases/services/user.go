@@ -14,6 +14,7 @@ import (
 
 type IUserService interface {
 	Create(username, password, email string, scopes []*entities.UserScope) (*entities.User, error)
+	FindAll(ctx context.Context) ([]*entities.User, error)
 	UpdateScope(ctx context.Context, userId string, scope *entities.UserScope, isAdded bool) error
 	Delete(ctx context.Context, userId string) error
 }
@@ -53,6 +54,17 @@ func (s *userService) Create(username, password, email string, scopes []*entitie
 
 	s.logger.Info("new user registered successfully")
 	return user, nil
+}
+
+func (s *userService) FindAll(ctx context.Context) ([]*entities.User, error) {
+	users, err := s.userRepo.FindAll()
+	if err != nil {
+		s.logger.Error("failed to find all users", zap.Error(err))
+		return nil, err
+	}
+
+	s.logger.Info("all users retrieved successfully")
+	return users, nil
 }
 
 func (s *userService) UpdateScope(ctx context.Context, userId string, scope *entities.UserScope, isAdded bool) error {

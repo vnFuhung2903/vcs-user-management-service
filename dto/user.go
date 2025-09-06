@@ -13,6 +13,6 @@ type UpdateScopeRequest struct {
 	Scope   string `json:"scopes" binding:"required"`
 }
 
-type DeleteRequest struct {
+type DeleteUserRequest struct {
 	UserId string `json:"user_id" binding:"required"`
 }

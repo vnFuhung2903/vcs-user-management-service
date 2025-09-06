@@ -112,3 +112,42 @@ func (suite *UserRepoSuite) TestBeginAndWithTransaction_Rollback() {
 
 	tx.Rollback()
 }
+
+func (suite *UserRepoSuite) TestFindAll() {
+	user1, err := suite.repo.Create("user1", "pass1", "user1@example.com", []*entities.UserScope{
+		{Name: "read"},
+	})
+	assert.NoError(suite.T(), err)
+
+	user2, err := suite.repo.Create("user2", "pass2", "user2@example.com", []*entities.UserScope{
+		{Name: "write"},
+	})
+	assert.NoError(suite.T(), err)
+
+	user3, err := suite.repo.Create("user3", "pass3", "user3@example.com", []*entities.UserScope{
+		{Name: "admin"},
+	})
+	assert.NoError(suite.T(), err)
+
+	users, err := suite.repo.FindAll()
+	assert.NoError(suite.T(), err)
+	assert.Len(suite.T(), users, 3)
+
+	usernames := make([]string, len(users))
+	for i, user := range users {
+		usernames[i] = user.Username
+		assert.NotNil(suite.T(), user.Scopes)
+	}
+	assert.Contains(suite.T(), usernames, user1.Username)
+	assert.Contains(suite.T(), usernames, user2.Username)
+	assert.Contains(suite.T(), usernames, user3.Username)
+}
+
+func (suite *UserRepoSuite) TestFindAllDatabaseError() {
+	sqlDB, _ := suite.db.DB()
+	sqlDB.Close()
+
+	users, err := suite.repo.FindAll()
+	assert.Error(suite.T(), err)
+	assert.Nil(suite.T(), users)
+}

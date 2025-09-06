@@ -37,7 +37,14 @@ definitions:
     - scopes
     - username
     type: object
-  dto.DeleteRequest:
+  dto.DeleteScopeRequest:
+    properties:
+      scope_name:
+        type: string
+    required:
+    - scope_name
+    type: object
+  dto.DeleteUserRequest:
     properties:
       user_id:
         type: string
@@ -63,6 +70,27 @@ info:
   title: VCS SMS API
   version: "1.0"
 paths:
+  /scopes/:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all scopes (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Scopes retrieved successfully
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: List all scopes
+      tags:
+      - scopes
   /scopes/create:
     post:
       consumes:
@@ -93,6 +121,38 @@ paths:
       security:
       - BearerAuth: []
       summary: Create a new scope
+      tags:
+      - scopes
+  /scopes/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a scope by name (admin only)
+      parameters:
+      - description: Scope deletion request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DeleteScopeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Scope deleted successfully
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a scope
       tags:
       - scopes
   /users/create:
@@ -138,7 +198,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.DeleteRequest'
+          $ref: '#/definitions/dto.DeleteUserRequest'
       produces:
       - application/json
       responses:
@@ -157,6 +217,27 @@ paths:
       security:
       - BearerAuth: []
       summary: Delete a user
+      tags:
+      - users
+  /users/list:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all users (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Users retrieved successfully
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: List all users
       tags:
       - users
   /users/update/scope:

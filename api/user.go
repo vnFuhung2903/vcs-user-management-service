@@ -23,12 +23,13 @@ func (h *userHandler) SetupRoutes(r *gin.Engine) {
 	userRoutes := r.Group("/users", h.jwtMiddleware.RequireScope("user:manage"))
 	{
 		userRoutes.POST("/create", h.Create)
+		userRoutes.GET("/list", h.ListAll)
 		userRoutes.PUT("/update/scope", h.UpdateScope)
 		userRoutes.DELETE("/delete", h.Delete)
 	}
 }
 
-// CreateUser godoc
+// Create godoc
 // @Summary Create a new user
 // @Description Create a user (admin only)
 // @Tags users
@@ -77,6 +78,36 @@ func (h *userHandler) Create(c *gin.Context) {
 		Success: true,
 		Code:    "USER_CREATED",
 		Message: "New user created successfully",
+	})
+}
+
+// ListAll godoc
+// @Summary List all users
+// @Description Retrieve all users (admin only)
+// @Tags users
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.APIResponse "Users retrieved successfully"
+// @Failure 500 {object} dto.APIResponse "Internal server error"
+// @Security BearerAuth
+// @Router /users/list [get]
+func (h *userHandler) ListAll(c *gin.Context) {
+	users, err := h.userService.FindAll(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, dto.APIResponse{
+			Success: false,
+			Code:    "INTERNAL_SERVER_ERROR",
+			Message: "Failed to retrieve users",
+			Error:   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.APIResponse{
+		Success: true,
+		Code:    "USERS_RETRIEVED",
+		Message: "All users retrieved successfully",
+		Data:    users,
 	})
 }
 
@@ -138,14 +169,14 @@ func (h *userHandler) UpdateScope(c *gin.Context) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param body body dto.DeleteRequest true "User ID to delete"
+// @Param body body dto.DeleteUserRequest true "User ID to delete"
 // @Success 200 {object} dto.APIResponse "User deleted successfully"
 // @Failure 400 {object} dto.APIResponse "Bad request"
 // @Failure 500 {object} dto.APIResponse "Internal server error"
 // @Security BearerAuth
 // @Router /users/delete [delete]
 func (h *userHandler) Delete(c *gin.Context) {
-	var req dto.DeleteRequest
+	var req dto.DeleteUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, dto.APIResponse{
 			Success: false,

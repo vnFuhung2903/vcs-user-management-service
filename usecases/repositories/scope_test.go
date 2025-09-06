@@ -102,3 +102,33 @@ func (suite *ScopeRepoSuite) TestBeginAndWithTransaction_Rollback() {
 
 	tx.Rollback()
 }
+
+func (suite *ScopeRepoSuite) TestFindAll() {
+	scope1, err := suite.repo.Create("read")
+	assert.NoError(suite.T(), err)
+	scope2, err := suite.repo.Create("write")
+	assert.NoError(suite.T(), err)
+	scope3, err := suite.repo.Create("admin")
+	assert.NoError(suite.T(), err)
+
+	scopes, err := suite.repo.FindAll()
+	assert.NoError(suite.T(), err)
+	assert.Len(suite.T(), scopes, 3)
+
+	scopeNames := make([]string, len(scopes))
+	for i, scope := range scopes {
+		scopeNames[i] = scope.Name
+	}
+	assert.Contains(suite.T(), scopeNames, scope1.Name)
+	assert.Contains(suite.T(), scopeNames, scope2.Name)
+	assert.Contains(suite.T(), scopeNames, scope3.Name)
+}
+
+func (suite *ScopeRepoSuite) TestFindAllDatabaseError() {
+	sqlDB, _ := suite.db.DB()
+	sqlDB.Close()
+
+	users, err := suite.repo.FindAll()
+	assert.Error(suite.T(), err)
+	assert.Nil(suite.T(), users)
+}

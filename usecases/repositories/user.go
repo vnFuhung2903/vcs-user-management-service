@@ -11,6 +11,7 @@ import (
 
 type IUserRepository interface {
 	FindById(userId string) (*entities.User, error)
+	FindAll() ([]*entities.User, error)
 	Create(username, hash, email string, scopes []*entities.UserScope) (*entities.User, error)
 	UpdateScope(user *entities.User, scopes []*entities.UserScope) error
 	Delete(userId string) error
@@ -33,6 +34,15 @@ func (r *userRepository) FindById(userId string) (*entities.User, error) {
 		return nil, res.Error
 	}
 	return &user, nil
+}
+
+func (r *userRepository) FindAll() ([]*entities.User, error) {
+	var users []*entities.User
+	res := r.db.Preload("Scopes").Find(&users)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return users, nil
 }
 
 func (r *userRepository) Create(username, hash, email string, scopes []*entities.UserScope) (*entities.User, error) {

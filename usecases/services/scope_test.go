@@ -163,3 +163,45 @@ func (s *ScopeServiceSuite) TestFindManyBeginTransactionError() {
 	s.ErrorContains(err, "transaction error")
 	s.Nil(result)
 }
+
+func (s *ScopeServiceSuite) TestFindAll() {
+	expectedScopes := []*entities.UserScope{
+		{ID: uint(1), Name: "read"},
+		{ID: uint(2), Name: "write"},
+		{ID: uint(3), Name: "admin"},
+	}
+
+	s.mockRepo.EXPECT().FindAll().Return(expectedScopes, nil)
+	s.logger.EXPECT().Info("all scopes retrieved successfully").Times(1)
+
+	result, err := s.scopeService.FindAll(s.ctx)
+	s.NoError(err)
+	s.Equal(expectedScopes, result)
+}
+
+func (s *ScopeServiceSuite) TestFindAllError() {
+	s.mockRepo.EXPECT().FindAll().Return(nil, errors.New("database error"))
+	s.logger.EXPECT().Error("failed to find all scopes", gomock.Any()).Times(1)
+
+	result, err := s.scopeService.FindAll(s.ctx)
+	s.ErrorContains(err, "database error")
+	s.Nil(result)
+}
+
+func (s *ScopeServiceSuite) TestDelete() {
+	scopeName := "test"
+	s.mockRepo.EXPECT().Delete(scopeName).Return(nil)
+	s.logger.EXPECT().Info("scope deleted successfully", gomock.Any()).Times(1)
+
+	err := s.scopeService.Delete(s.ctx, scopeName)
+	s.NoError(err)
+}
+
+func (s *ScopeServiceSuite) TestDeleteError() {
+	scopeName := "test"
+	s.mockRepo.EXPECT().Delete(scopeName).Return(errors.New("database error"))
+	s.logger.EXPECT().Error("failed to delete scope", gomock.Any()).Times(1)
+
+	err := s.scopeService.Delete(s.ctx, scopeName)
+	s.ErrorContains(err, "database error")
+}
